@@ -155,27 +155,27 @@ func TestValidateUser(t *testing.T) {
 		{
 			name:      "Empty user",
 			user:      "",
-			wantError: ErrUserEmpty,
+			wantError: ErrDeployUserEmpty,
 		},
 		{
 			name:      "User with space",
 			user:      "my user",
-			wantError: ErrUserInvalid,
+			wantError: ErrDeployUserInvalid,
 		},
 		{
 			name:      "User with special chars",
 			user:      "user@example",
-			wantError: ErrUserInvalid,
+			wantError: ErrDeployUserInvalid,
 		},
 		{
 			name:      "User with dot",
 			user:      "user.name",
-			wantError: ErrUserInvalid,
+			wantError: ErrDeployUserInvalid,
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			err := validateUser(test.user)
+			err := validateDeployUser(test.user)
 			assert.Equal(t, err, test.wantError)
 		})
 	}

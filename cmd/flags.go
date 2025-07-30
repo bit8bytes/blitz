@@ -22,8 +22,8 @@ var (
 	ErrBinaryDirNotExist  = errors.New("binary dir does not exist")
 	ErrUnitDirEmpty       = errors.New("unit dir cannot be empty")
 	ErrUnitDirNotExist    = errors.New("unit dir does not exist")
-	ErrUserEmpty          = errors.New("user cannot be empty")
-	ErrUserInvalid        = errors.New("invalid user")
+	ErrDeployUserEmpty    = errors.New("user cannot be empty")
+	ErrDeployUserInvalid  = errors.New("invalid user")
 	ErrHostEmpty          = errors.New("host cannot be empty")
 	ErrHostInvalid        = errors.New("invalid host")
 )
@@ -35,7 +35,7 @@ type Config struct {
 	ServiceName string
 	BinaryDir   string
 	UnitDir     string
-	User        string
+	DeployUser  string
 	Host        string
 }
 
@@ -49,8 +49,8 @@ func (cfg *Config) Load() error {
 		"Directory containing binaries")
 	flag.StringVar(&cfg.UnitDir, "unit-dir", env.GetString("UNIT_DIR", ""),
 		"Directory containing systemd unit files")
-	flag.StringVar(&cfg.User, "user", env.GetString("USER", ""),
-		"User")
+	flag.StringVar(&cfg.DeployUser, "deploy-user", env.GetString("DEPLOY_USER", ""),
+		"Deploy User")
 	flag.StringVar(&cfg.Host, "host", env.GetString("HOST", ""),
 		"Hostname or IP")
 	flag.Parse()
@@ -67,7 +67,7 @@ func (cfg *Config) Load() error {
 	if err := validateUnitDir(cfg.UnitDir); err != nil {
 		return err
 	}
-	if err := validateUser(cfg.User); err != nil {
+	if err := validateDeployUser(cfg.DeployUser); err != nil {
 		return err
 	}
 	if err := validateHost(cfg.Host); err != nil {
@@ -126,16 +126,16 @@ func validateUnitDir(unitDir string) error {
 	return nil
 }
 
-func validateUser(user string) error {
+func validateDeployUser(user string) error {
 	if user == "" {
-		return ErrUserEmpty
+		return ErrDeployUserEmpty
 	}
 	for _, char := range user {
 		if !((char >= 'a' && char <= 'z') ||
 			(char >= 'A' && char <= 'Z') ||
 			(char >= '0' && char <= '9') ||
 			char == '-' || char == '_') {
-			return ErrUserInvalid
+			return ErrDeployUserInvalid
 		}
 	}
 	return nil
