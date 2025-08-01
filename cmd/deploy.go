@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -19,11 +19,23 @@ func (cli *CLI) Deploy() error {
 	fullBinPath := filepath.Join(cli.config.BinaryDir, cli.config.ServiceName)
 	fullUnitPath := filepath.Join(cli.config.UnitDir, cli.config.ServiceName+".service")
 
-	fmt.Println(fullUnitPath)      // remote/production/blitz.service
-	fmt.Println(fullBinPath)       // bin/blitz
-	fmt.Println(deployUserAndHost) // deploy_user@host
-
 	// TODO: Construct terminal commands
+
+	cmd := exec.Command("rsync", "-P", fullBinPath, deployUserAndHost+":~")
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+
+	cli.logger.Debug("Copyied binary to host.", "path", fullBinPath)
+
+	cmd = exec.Command("rsync", "-P", fullUnitPath, deployUserAndHost+":~")
+	_, err = cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+
+	cli.logger.Debug("Copyied systemd service to host.", "path", fullUnitPath)
 
 	return nil
 }
